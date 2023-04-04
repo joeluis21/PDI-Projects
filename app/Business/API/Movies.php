@@ -18,10 +18,12 @@ class Movies
             throw new Exception();
         }
         foreach ($lastPopularMovies->results as $movie) {
+            
             $moviesArray = [
                 'nome' => $movie->original_title,
                 'generos' =>  $this->getGenresById($movie->genre_ids),
                 'adulto' => $movie->adult,
+                'data_lancamento' => $this->dateBr($movie->release_date),
                 'pontuacao' => $movie->vote_average,
                 'poster' => $movie->poster_path,
                 'idioma_original' => $movie->original_language,
@@ -55,5 +57,10 @@ class Movies
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    private function dateBr($date, $format='d/m/Y') 
+    {
+        return date($format,(strtotime($date)));
     }
 }
