@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Facades\MoviesFacade;
 use Exception;
 
 class Movies extends Controller
