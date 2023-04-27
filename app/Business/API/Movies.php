@@ -8,20 +8,17 @@ use Exception;
 
 class Movies
 {
-    private $key = "b4bce14b774116c09c4f3805ad0f3dc0";
-
-    public function getLastPopularMovies($number)
+    public function getLastPopularMovies(): array
     {
-        $response = MoviesFacade::get('/movie/popular?api_key=' . $this->key . '&language=pt-BR&page=1');
+        $response = MoviesFacade::get('/movie/popular?api_key=' . env('TMDB_KEY') . '&language=' . env('TMDB_LANGUAGE') . '&page=' . env('TMDB_PAGES') . '');
         $lastPopularMovies = $response->object();
         if (!$response->ok()) {
-            throw new Exception();
+            throw new Exception('Error in response of TMDB');
         }
         foreach ($lastPopularMovies->results as $movie) {
-            
             $moviesArray = [
                 'nome' => $movie->original_title,
-                'generos' =>  $this->getGenresById($movie->genre_ids),
+                'generos' =>  $this->separateGenresIds($movie->genre_ids),
                 'adulto' => $movie->adult,
                 'data_lancamento' => $this->dateBr($movie->release_date),
                 'pontuacao' => $movie->vote_average,
@@ -34,33 +31,48 @@ class Movies
         return $movies;
     }
 
-    private function getGenresById($genres)
+    private function separateGenresIds(array $genres): string
+    {
+
+        $response = $this->getGenresResponse();
+
+        foreach ($genres as $genre) {
+            $generos[] =  $this->getGenresById($genre, $response);
+        }
+        return $this->separateGenresByComma($generos);
+    }
+
+    private function getGenresById(string $genre , object $response): string
     {
         try {
-            $response = MoviesFacade::get('/genre/movie/list?api_key=' . $this->key . '&language=pt-BR');
-            if (!$response->ok()) {
-                throw new Exception();
-            }
-            $responseObj = $response->object();
+            foreach ($response->genres as $genresapi) {
 
-            $generos = [];
-            foreach ($genres as $genre) {
-                foreach ($responseObj->genres as $genresapi) {
-                    if ($genre == $genresapi->id) {
-                        $genre = $genresapi->name;
-                    }
+                if ($genre == $genresapi->id) {
+                    $genre = $genresapi->name;
                 }
-                $generos[] = $genre;
             }
-            $genero =  implode(',', $generos);
-            return $genero;
-        } catch (\Throwable $th) {
-            throw $th;
+            return $genre;
+        } catch (Exception $e) {
+            echo 'Error on response of genres: ',  $e->getMessage(), "\n";
         }
     }
 
-    private function dateBr($date, $format='d/m/Y') 
+    private function getGenresResponse() : object
     {
-        return date($format,(strtotime($date)));
+        $response = MoviesFacade::get('/genre/movie/list?api_key=' .  env('TMDB_KEY')  . '&language=' . env('TMDB_LANGUAGE') . '');
+        if (!$response->ok()) {
+            throw new Exception('Error in response of TMDB');
+        }
+        return $response->object();
+    }
+
+    private function separateGenresByComma(array $generos): string
+    {
+        return implode(',', $generos);
+    }
+
+    private function dateBr(string $date, string $format = 'd/m/Y'): string
+    {
+        return date($format, (strtotime($date)));
     }
 }

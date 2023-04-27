@@ -17,8 +17,10 @@ class MoviesControllerTest extends TestCase
         $numberOfMovies = '10';
         $response = $this->get('/api/movies/getPopular/' . $numberOfMovies);
         $response->assertStatus(200);
-        $response->assertJsonCount( $numberOfMovies);
+        $response->assertJsonCount($numberOfMovies);
+
         $response->assertJson(function (AssertableJson $json) use ($response) {
+            $json->hasAll(['0.nome', '0.generos', '0.adulto', '0.pontuacao', '0.poster', '0.idioma_original', '0.sinopse']);
             $json->whereAllType([
                 '0.nome' => 'string',
                 '0.generos' => 'string',
@@ -28,9 +30,6 @@ class MoviesControllerTest extends TestCase
                 '0.idioma_original' => 'string',
                 '0.sinopse' => 'string'
             ]);
-
-            $json->hasAll(['0.nome', '0.generos', '0.adulto', '0.pontuacao', '0.poster', '0.idioma_original', '0.sinopse']);
-            
         });
     }
 }
