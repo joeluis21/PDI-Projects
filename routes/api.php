@@ -20,11 +20,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('movies/getPopular/{number}', [Movies::class,'getPopular'])->middleware('auth:sanctum');
+Route::get('movies/getPopular/{number}', [Movies::class,'getPopular'])->middleware('auth:sanctum');;
 
 
 Route::prefix('auth')->group(function() {
-    Route::post('login', [LoginController::class, 'login']);
-    Route::post('logout', [LoginController::class, 'logout'])->middleware('auth:sanctum');
-    Route::post('register', [RegisterController::class, 'register']);
+    Route::post('login', [\App\Http\Controllers\Auth\Api\LoginController::class, 'login']);
+    Route::post('logout', [\App\Http\Controllers\Auth\Api\LoginController::class, 'logout'])->middleware('auth:sanctum');
+    Route::post('register', [\App\Http\Controllers\Auth\Api\RegisterController::class, 'register']);
 });
