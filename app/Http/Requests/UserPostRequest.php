@@ -11,7 +11,7 @@ class UserPostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,8 +23,8 @@ class UserPostRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|min:8'
+            'email' => 'required|unique:users|email',
+            'password' => 'required|min:8',
         ];
     }
 }

@@ -10,15 +10,11 @@ use Illuminate\Support\Facades\Redis;
 
 class RegisterController extends Controller
 {
-    public function register(Request $request, User $user)
+    public function register(UserPostRequest $request, User $user)
     {
         //TO-DO: validar request...
-        $validate =  $request->validate([
-            'name' => 'required',
-            'email' => 'required|unique:users|email',
-            'password' => 'required|min:8',
-        ]);
-
+        $request->validated();
+        
 
         $userData = $request->only('name', 'email', 'password');
         $userData['password'] = bcrypt($userData['password']);
